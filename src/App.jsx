@@ -179,7 +179,7 @@ export default function DetailPageGenerator() {
     dha: "",
   });
   const [image, setImage] = useState(null);
-  const [themeColor, setThemeColor] = useState(PRESET_COLORS[0]);
+  const [themeColor, setThemeColor] = useState("#A87535");
   const [pointColors, setPointColors] = useState([]); // 최대 2개
   const [headingFont, setHeadingFont] = useState("pretendard");
   const [bodyFont, setBodyFont] = useState("pretendard");
@@ -504,7 +504,7 @@ export default function DetailPageGenerator() {
         : cs.badgeStyle === "soft"
         ? `background:${accent1}1A;color:${accent1};border-radius:999px;`
         : `background:transparent;color:${accent1};border:1px solid ${accent1};border-radius:4px;`;
-    const pageBg = cs.pageBg || "#F4F3EE";
+    const pageBg = cs.pageBg || "#F8F5EF";
 
     return `<!doctype html>
 <html lang="ko">
@@ -621,14 +621,42 @@ ${fontLink}
   }
 
   return (
-    <div style={{ fontFamily: '"Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif', background: "#F4F3EE", minHeight: "100%", color: "#1F2A24" }}>
-      <div className="app-grid" style={{ display: "grid", gridTemplateColumns: "340px 1fr", minHeight: "100%" }}>
-        {/* LEFT: input rail */}
-        <div style={{ background: "#1F2A24", color: "#F4F3EE", padding: "28px 24px", display: "flex", flexDirection: "column", gap: 20 }}>
+    <div style={{ fontFamily: '"Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif', background: "#F8F5EF", minHeight: "100%", color: "#26231F" }}>
+      <div className="app-grid" style={{ display: "grid", gridTemplateColumns: "168px 390px minmax(720px, 1fr)", minHeight: "100vh" }}>
+        <aside className="brand-sidebar" style={{ background: "#FBFAF7", borderRight: "1px solid #E8E1D7", padding: "26px 22px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
           <div>
-            <div style={{ fontSize: 11, letterSpacing: 1.5, opacity: 0.6, textTransform: "uppercase", marginBottom: 4 }}>AI Detail Page</div>
-            <div style={{ fontSize: 20, fontWeight: 800 }}>제품 정보 입력</div>
+            <div style={{ fontFamily: '"Noto Serif KR", serif', fontSize: 18, lineHeight: 1.12, fontWeight: 800, letterSpacing: "0.03em", color: "#2A241C", marginBottom: 36 }}>
+              ✦ BRAND<br />ENGINE
+            </div>
+            <nav style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {["상세페이지 생성", "내 프로젝트", "템플릿", "가이드", "설정"].map((item, idx) => (
+                <div key={item} style={{ display: "flex", alignItems: "center", gap: 10, padding: "11px 10px", borderRadius: 10, background: idx === 0 ? "#FFFFFF" : "transparent", boxShadow: idx === 0 ? "0 10px 24px rgba(47,38,28,0.06)" : "none", color: idx === 0 ? "#9A672E" : "#6D665E", fontSize: 13, fontWeight: idx === 0 ? 800 : 600 }}>
+                  <span style={{ width: 18, height: 18, borderRadius: 6, border: `1px solid ${idx === 0 ? "#B8874D" : "#D8D0C5"}`, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 10 }}>{idx === 0 ? "✧" : ""}</span>
+                  {item}
+                </div>
+              ))}
+            </nav>
           </div>
+          <div style={{ color: "#7B7268", fontSize: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}><span style={{ width: 26, height: 26, borderRadius: "50%", background: "#F0E8DD", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#8B6A47", fontWeight: 800 }}>M</span>마이계정</div>
+            <div style={{ marginBottom: 32 }}>로그아웃</div>
+            <div style={{ opacity: 0.55 }}>© 2026 Brand Engine</div>
+          </div>
+        </aside>
+        {/* LEFT: input rail */}
+        <div style={{ background: "#FFFEFB", color: "#26231F", padding: "28px 30px", display: "flex", flexDirection: "column", gap: 18, borderRight: "1px solid #E8E1D7", overflowY: "auto" }}>
+          <div style={{ paddingBottom: 8, borderBottom: "1px solid #EEE7DD" }}>
+            <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: "-0.04em", marginBottom: 5 }}>1. 제품 정보 입력</div>
+            <div style={{ fontSize: 12.5, color: "#8B8175" }}>정확한 정보를 입력할수록 더 좋은 결과가 생성됩니다.</div>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "2px 0 4px" }}>
+            {["입력", "생성 중", "완료"].map((s, i) => (
+              <div key={s} style={{ display: "flex", alignItems: "center", gap: 8, color: i === 0 ? "#9A672E" : "#B9B0A5", fontSize: 12, fontWeight: 700 }}>
+                <span style={{ width: 22, height: 22, borderRadius: "50%", background: i === 0 ? "#9A672E" : "#EFEAE2", color: i === 0 ? "#fff" : "#8B8175", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 11 }}>{i + 1}</span>{s}
+              </div>
+            ))}
+          </div>
+          <div style={{ fontSize: 13.5, fontWeight: 800, color: "#5F4B36", marginTop: 6 }}>기본 정보</div>
 
           <Field label="제품명 *">
             <input style={inputStyle} disabled={isGenerating} value={product.name} onChange={(e) => update("name", e.target.value)} placeholder="예: 식물성 베르베린 88" />
@@ -645,9 +673,9 @@ ${fontLink}
                     flex: 1,
                     padding: "9px 10px",
                     borderRadius: 8,
-                    border: product.category === c ? `1.5px solid ${themeColor}` : "1.5px solid rgba(244,243,238,0.2)",
-                    background: product.category === c ? "rgba(244,243,238,0.1)" : "rgba(244,243,238,0.06)",
-                    color: "#F4F3EE",
+                    border: product.category === c ? `1.5px solid ${themeColor}` : "1px solid #E1D8CB",
+                    background: product.category === c ? "#F4EEE5" : "#FFFFFF",
+                    color: "#2B2925",
                     fontSize: 13,
                     fontWeight: product.category === c ? 700 : 400,
                     cursor: "pointer",
@@ -658,6 +686,9 @@ ${fontLink}
               ))}
             </div>
           </Field>
+
+          <div style={{ height: 1, background: "#EEE7DD", margin: "4px 0 2px" }} />
+          <div style={{ fontSize: 13.5, fontWeight: 800, color: "#5F4B36" }}>타깃 고객</div>
 
           <Field label="타깃 고객 *">
             <textarea style={{ ...inputStyle, height: 56, resize: "vertical" }} disabled={isGenerating} value={product.target} onChange={(e) => update("target", e.target.value)} placeholder="예: 40-60대 갱년기 여성, 혈당 관리 필요 성인" />
@@ -699,9 +730,9 @@ ${fontLink}
                       flex: 1,
                       padding: "7px 8px",
                       borderRadius: 8,
-                      border: product.amountBasis === b ? `1.5px solid ${themeColor}` : "1.5px solid rgba(244,243,238,0.2)",
-                      background: product.amountBasis === b ? "rgba(244,243,238,0.1)" : "rgba(244,243,238,0.06)",
-                      color: "#F4F3EE",
+                      border: product.amountBasis === b ? `1.5px solid ${themeColor}` : "1px solid #E1D8CB",
+                      background: product.amountBasis === b ? "#F4EEE5" : "#FFFFFF",
+                      color: "#2B2925",
                       fontSize: 12,
                       cursor: "pointer",
                     }}
@@ -760,12 +791,15 @@ ${fontLink}
                 </button>
               </div>
             ) : (
-              <button onClick={() => fileInputRef.current?.click()} style={{ ...inputStyle, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, cursor: "pointer", color: "rgba(244,243,238,0.6)" }}>
+              <button onClick={() => fileInputRef.current?.click()} style={{ ...inputStyle, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, cursor: "pointer", color: "#8B8175" }}>
                 <ImageIcon size={15} /> 사진 업로드
               </button>
             )}
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImage} style={{ display: "none" }} />
           </Field>
+
+          <div style={{ height: 1, background: "#EEE7DD", margin: "4px 0 2px" }} />
+          <div style={{ fontSize: 13.5, fontWeight: 800, color: "#5F4B36" }}>디자인 선호도</div>
 
           <Field label="메인 컬러">
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -789,7 +823,7 @@ ${fontLink}
                       gap: 6,
                       padding: "3px 6px 3px 8px",
                       borderRadius: 999,
-                      background: "rgba(244,243,238,0.1)",
+                      background: "#F4EEE5",
                       fontSize: 11,
                     }}
                   >
@@ -801,13 +835,13 @@ ${fontLink}
                       style={{
                         display: "flex",
                         border: "none",
-                        background: "rgba(244,243,238,0.15)",
+                        background: "#E8E1D7",
                         borderRadius: "50%",
                         width: 16,
                         height: 16,
                         alignItems: "center",
                         justifyContent: "center",
-                        color: "#F4F3EE",
+                        color: "#8B6A47",
                         cursor: "pointer",
                         padding: 0,
                       }}
@@ -821,7 +855,7 @@ ${fontLink}
                   style={{
                     border: "none",
                     background: "transparent",
-                    color: "rgba(244,243,238,0.5)",
+                    color: "#9D9183",
                     fontSize: 11,
                     cursor: "pointer",
                     textDecoration: "underline",
@@ -884,7 +918,7 @@ ${fontLink}
           <Field label="디자인 컨셉">
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               {CONCEPTS.map((c) => (
-                <button key={c.id} onClick={() => setConcept(c.id)} style={{ textAlign: "left", padding: "8px 10px", borderRadius: 8, border: concept === c.id ? `1.5px solid ${themeColor}` : "1.5px solid rgba(244,243,238,0.15)", background: concept === c.id ? "rgba(244,243,238,0.06)" : "transparent", color: "#F4F3EE", cursor: "pointer" }}>
+                <button key={c.id} onClick={() => setConcept(c.id)} style={{ textAlign: "left", padding: "8px 10px", borderRadius: 8, border: concept === c.id ? `1.5px solid ${themeColor}` : "1.5px solid rgba(244,243,238,0.15)", background: concept === c.id ? "#FFFFFF" : "transparent", color: "#2B2925", cursor: "pointer" }}>
                   <div style={{ fontSize: 13, fontWeight: 700 }}>{c.label}</div>
                   <div style={{ fontSize: 11, opacity: 0.55 }}>{c.desc}</div>
                 </button>
@@ -900,7 +934,7 @@ ${fontLink}
               padding: "12px 16px",
               borderRadius: 10,
               border: "none",
-              background: canGenerate ? themeColor : "rgba(244,243,238,0.15)",
+              background: canGenerate ? themeColor : "#E8E1D7",
               color: "#fff",
               fontWeight: 700,
               fontSize: 14,
@@ -928,15 +962,26 @@ ${fontLink}
                   </div>
                 );
               })}
+              {getKeywordChips(product).length > 0 && (
+                <div style={{ marginTop: 18, padding: "22px 28px", borderTop: "1px solid #E6DED2", display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+                  <span style={{ fontFamily: conceptStyle.headFont, fontSize: 24, color: accent1, opacity: 0.35, fontWeight: 700 }}>03</span>
+                  <span style={{ fontSize: 13, fontWeight: 800, color: "#4C4339", marginRight: 4 }}>주요 키워드</span>
+                  {getKeywordChips(product).map((kw) => (
+                    <span key={kw} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 999, border: "1px solid #E3D9CC", background: "rgba(255,255,255,0.62)", color: "#8B5E2C", fontSize: 12.5, fontWeight: 700 }}>
+                      <Sparkles size={12} /> {kw}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           )}
           {error && <div style={{ fontSize: 12, color: "#E8998D" }}>{error}</div>}
         </div>
 
         {/* RIGHT: preview / results */}
-        <div style={{ padding: "48px 54px", overflowY: "auto", background: "radial-gradient(circle at top, #FFFFFF 0, #F4F3EE 34%, #EEECE4 100%)" }}>
+        <div style={{ padding: "30px 40px 48px", overflowY: "auto", background: "linear-gradient(180deg, #F8F5EF 0%, #F3EDE4 100%)" }}>
           {draft && (
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginBottom: 18, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 14, marginBottom: 18, flexWrap: "wrap" }}><div><div style={{ fontSize: 22, fontWeight: 900, letterSpacing: "-0.04em" }}>2. 생성된 상세페이지 미리보기</div><div style={{ fontSize: 12.5, color: "#8B8175", marginTop: 4 }}>AI가 생성한 결과입니다. 내용은 수정할 수 있습니다.</div></div><div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <button
                 onClick={copyResult}
                 style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 12px", borderRadius: 8, border: "1px solid #DEDCD3", background: "#fff", color: "#4A4940", fontSize: 12.5, cursor: "pointer" }}
@@ -963,6 +1008,7 @@ ${fontLink}
               >
                 <RefreshCw size={13} /> 새로 만들기
               </button>
+              </div>
             </div>
           )}
 
@@ -1008,7 +1054,7 @@ ${fontLink}
           )}
 
           {draft && (
-            <div style={{ maxWidth: 680, margin: "0 auto", fontFamily: bodyFamily }}>
+            <div style={{ maxWidth: 940, margin: "0 auto", fontFamily: bodyFamily }}>
               <PreviewSection idx="hero" onRegen={regenerateSection} loading={regenIndex === "hero"} accent={themeColor}>
                 <div
                   style={{
@@ -1017,7 +1063,7 @@ ${fontLink}
                     borderRadius: conceptStyle.radius,
                     boxShadow: "0 18px 50px rgba(31,42,36,0.10)",
                     border: "1px solid rgba(31,42,36,0.08)",
-                    padding: "58px 50px 54px",
+                    padding: "58px 58px 56px",
                     background: `linear-gradient(135deg, #FFFFFF 0%, #FBFAF6 68%, ${accent1}12 100%)`,
                     marginBottom: 44,
                   }}
@@ -1029,7 +1075,7 @@ ${fontLink}
                       {product.name}
                     </div>
                   )}
-                  <div style={{ fontFamily: conceptStyle.headFont, fontWeight: conceptStyle.headWeight, fontSize: 40, lineHeight: 1.18, color: "#1F2A24", marginBottom: 22, letterSpacing: "-0.035em", maxWidth: 560 }}>
+                  <div style={{ fontFamily: conceptStyle.headFont, fontWeight: conceptStyle.headWeight, fontSize: 44, lineHeight: 1.16, color: "#1F2A24", marginBottom: 22, letterSpacing: "-0.035em", maxWidth: 560 }}>
                     <EmphasizedText text={draft.hero_headline} accent={accent1} />
                   </div>
                   <div style={{ width: 72, height: 1, background: accent1, marginBottom: 22, opacity: 0.8 }} />
@@ -1169,9 +1215,9 @@ function FontPicker({ value, onChange, themeColor }) {
                   textAlign: "left",
                   padding: "8px 10px",
                   borderRadius: 8,
-                  border: selected ? `1.5px solid ${themeColor}` : "1.5px solid rgba(244,243,238,0.15)",
-                  background: selected ? "rgba(244,243,238,0.08)" : "transparent",
-                  color: "#F4F3EE",
+                  border: selected ? `1.5px solid ${themeColor}` : "1px solid #E1D8CB",
+                  background: selected ? "#F4EEE5" : "transparent",
+                  color: "#2B2925",
                   cursor: "pointer",
                   fontFamily: f.family,
                   fontSize: 15,
@@ -1256,6 +1302,25 @@ function ConceptBadge({ badgeStyle, themeColor, children }) {
       {children}
     </span>
   );
+}
+
+
+function getKeywordChips(product) {
+  const raw = `${product?.benefits || ""},${product?.target || ""},${product?.ingredientName || ""}`;
+  const split = raw
+    .split(/[,.·/|\n]+/)
+    .map((v) => v.replace(/[*()]/g, "").trim())
+    .filter(Boolean);
+  const preferred = ["식후 밸런스", "체중 관리", "갱년기 케어", "대사 건강", "식물성 원료", "프리미엄 배합"];
+  const result = [];
+  for (const p of preferred) {
+    if (raw.includes(p.replace(" 케어", "")) || raw.includes(p.split(" ")[0])) result.push(p);
+  }
+  for (const item of split) {
+    const short = item.length > 12 ? item.slice(0, 12) : item;
+    if (short.length >= 2 && !result.includes(short) && result.length < 6) result.push(short);
+  }
+  return result.slice(0, 6);
 }
 
 function sectionLabel(type) {
@@ -1402,12 +1467,13 @@ function PreviewSection({ idx, onRegen, loading, accent, children }) {
 
 const inputStyle = {
   width: "100%",
-  padding: "9px 11px",
+  padding: "10px 12px",
   borderRadius: 8,
-  border: "1px solid rgba(244,243,238,0.2)",
-  background: "rgba(244,243,238,0.06)",
-  color: "#F4F3EE",
+  border: "1px solid #E1D8CB",
+  background: "#FFFFFF",
+  color: "#2B2925",
   fontSize: 13.5,
   outline: "none",
   boxSizing: "border-box",
+  boxShadow: "0 1px 0 rgba(50,38,25,0.02)",
 };

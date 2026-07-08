@@ -88,6 +88,35 @@ function buildComplianceFocus(category) {
   return rules.complianceFocus.map((f) => "- " + f).join("\n");
 }
 
+
+function emphasizeHtmlText(value, accentColor) {
+  const esc = (s) =>
+    String(s ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  const safe = esc(value);
+  return safe.replace(/(\d+(?:[.,]\d+)?\s*(?:%|mg|g|kg|ml|mL|정|포|캡슐)?)/g, `<span class="num-em">$1</span>`);
+}
+
+function EmphasizedText({ text, accent }) {
+  const parts = String(text ?? "").split(/(\d+(?:[.,]\d+)?\s*(?:%|mg|g|kg|ml|mL|정|포|캡슐)?)/g);
+  return (
+    <>
+      {parts.map((part, idx) => {
+        const isNumber = /\d/.test(part) && idx % 2 === 1;
+        return isNumber ? (
+          <span key={idx} style={{ color: accent, fontWeight: 800, fontSize: "1.08em", letterSpacing: "-0.02em" }}>
+            {part}
+          </span>
+        ) : (
+          <span key={idx}>{part}</span>
+        );
+      })}
+    </>
+  );
+}
+
 function callClaude(prompt, maxTokens = 2000) {
   return fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
@@ -426,20 +455,20 @@ export default function DetailPageGenerator() {
       .map((s, i) => {
         const label = sectionLabel(s.type);
         const num = String(i + 1).padStart(2, "0");
-        const title = s.title ? `<h2 class="sec-title">${esc(s.title)}</h2>` : "";
-        const body = s.body ? `<p class="sec-body">${esc(s.body)}</p>` : "";
+        const title = s.title ? `<h2 class="sec-title">${emphasizeHtmlText(s.title, accent1)}</h2>` : "";
+        const body = s.body ? `<p class="sec-body">${emphasizeHtmlText(s.body, accent1)}</p>` : "";
         const isHighlight = s.type === "benefit_list" || s.type === "solution";
         const isBadges = s.type === "trust_badges";
         const isList = s.type === "benefit_list";
         let items = "";
         if (s.items && isBadges) {
-          items = `<div class="badges">${s.items.map((it) => `<span class="badge">${esc(it)}</span>`).join("")}</div>`;
+          items = `<div class="badges">${s.items.map((it) => `<span class="badge">${emphasizeHtmlText(it, accent1)}</span>`).join("")}</div>`;
         } else if (s.items && isList) {
           items = `<div class="benefit-rows">${s.items
-            .map((it) => `<div class="benefit-row"><span class="benefit-tick">—</span><span>${esc(it)}</span></div>`)
+            .map((it) => `<div class="benefit-row"><span class="benefit-tick">—</span><span>${emphasizeHtmlText(it, accent1)}</span></div>`)
             .join("")}</div>`;
         } else if (s.items) {
-          items = `<ul class="sec-list">${s.items.map((it) => `<li>${esc(it)}</li>`).join("")}</ul>`;
+          items = `<ul class="sec-list">${s.items.map((it) => `<li>${emphasizeHtmlText(it, accent1)}</li>`).join("")}</ul>`;
         }
         const cls = isHighlight ? "card highlight" : "card";
         return `<section class="${cls}">
@@ -488,50 +517,68 @@ ${fontLink}
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    background: ${pageBg};
+    background: radial-gradient(circle at top, #fff 0, ${pageBg} 36%, #EEECE4 100%);
     font-family: ${bodyFamily};
     color: #1F2A24;
-    padding: 32px 16px;
+    padding: 48px 18px;
   }
-  .wrap { max-width: 640px; margin: 0 auto; }
-  .card {
-    background: #fff;
+  .wrap { max-width: 680px; margin: 0 auto; }
+  .hero {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #FFFFFF 0%, #FBFAF6 68%, ${esc(accent1)}12 100%);
     border-radius: ${cs.radius};
-    box-shadow: ${cs.shadow};
-    border: ${cs.border};
-    padding: 30px 32px;
-    margin-bottom: ${Math.max(14, cs.sectionGap)}px;
+    box-shadow: 0 18px 50px rgba(31,42,36,0.10);
+    border: 1px solid rgba(31,42,36,0.08);
+    padding: 58px 50px 54px;
+    margin-bottom: 44px;
+  }
+  .hero:before {
+    content: "";
+    position: absolute;
+    top: 0; left: 50px; right: 50px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, ${esc(accent1)}66, transparent);
+  }
+  .hero-img { width: 100%; height: 250px; object-fit: cover; border-radius: ${cs.radius}; margin-bottom: 32px; filter: saturate(.95) contrast(1.02); }
+  .hero-overline { font-size: 10px; font-weight: 800; letter-spacing: 2.8px; text-transform: uppercase; color: ${esc(accent1)}; margin-bottom: 18px; }
+  .hero-headline { font-family: ${headingFamily}; font-weight: ${cs.headWeight}; font-size: 40px; line-height: 1.18; letter-spacing: -0.035em; margin: 0 0 22px; max-width: 560px; }
+  .hero-rule { width: 72px; height: 1px; background: ${esc(accent1)}; margin: 0 0 22px; opacity: .8; }
+  .hero-sub { font-size: 16px; color: #5D5B52; line-height: 1.85; margin: 0; max-width: 560px; letter-spacing: -0.01em; }
+  .card {
+    position: relative;
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    border: 0;
+    border-top: 1px solid rgba(31,42,36,0.12);
+    padding: 34px 4px 38px 92px;
+    margin-bottom: 8px;
   }
   .card.highlight {
     background: ${highlightBg};
+    border-top: none;
+    border-radius: ${cs.radius};
+    padding: 34px 38px 36px 98px;
+    margin: 24px 0 28px;
+    box-shadow: 0 14px 34px rgba(31,42,36,0.07);
     ${highlightBorderLeft}
   }
   .card.highlight .sec-body, .card.highlight .sec-list, .card.highlight .benefit-row { color: ${highlightText}; }
   .card.highlight .sec-title { color: ${highlightTitle}; }
-  .hero {
-    background: #fff;
-    border-radius: ${cs.radius};
-    box-shadow: ${cs.shadow};
-    border: ${cs.border};
-    padding: 40px 36px;
-    margin-bottom: ${Math.max(14, cs.sectionGap)}px;
-  }
-  .hero-img { width: 100%; height: 220px; object-fit: cover; border-radius: ${cs.radius}; margin-bottom: 26px; }
-  .hero-overline { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: ${esc(accent1)}; margin-bottom: 14px; }
-  .hero-headline { font-family: ${headingFamily}; font-weight: ${cs.headWeight}; font-size: 32px; line-height: 1.25; letter-spacing: -0.01em; margin: 0 0 16px; }
-  .hero-rule { width: 40px; height: 3px; background: ${esc(accent1)}; margin: 0 0 16px; }
-  .hero-sub { font-size: 15.5px; color: #6B6A61; line-height: 1.7; margin: 0; }
-  .sec-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 12px; }
-  .sec-num { font-family: ${headingFamily}; font-size: 13px; font-weight: 700; color: ${esc(accent1)}; opacity: .5; }
-  .sec-label { font-size: 11px; font-weight: 700; color: ${esc(accent1)}; text-transform: uppercase; letter-spacing: .5px; }
-  .sec-title { font-family: ${headingFamily}; font-weight: ${cs.headWeight}; font-size: 19px; line-height: 1.4; margin: 0 0 10px; }
-  .sec-body { font-size: 14.5px; color: #4A4940; line-height: 1.75; margin: 0; }
-  .sec-list { margin: 0; padding-left: 18px; font-size: 14.5px; color: #4A4940; line-height: 1.8; }
-  .benefit-rows { display: flex; flex-direction: column; gap: 10px; }
-  .benefit-row { display: flex; align-items: flex-start; gap: 10px; font-size: 14.5px; color: #4A4940; line-height: 1.6; }
-  .benefit-tick { color: ${esc(accent1)}; font-weight: 700; }
-  .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
-  .badge { display: inline-block; font-size: 12px; font-weight: 600; padding: 5px 12px; ${badgeCss} }
+  .sec-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; }
+  .sec-num { position: absolute; left: 4px; top: 26px; font-family: ${headingFamily}; font-size: 34px; font-weight: 700; color: ${esc(accent1)}; opacity: .18; letter-spacing: -0.04em; }
+  .card.highlight .sec-num { left: 34px; top: 30px; opacity: .28; }
+  .sec-label { font-size: 10.5px; font-weight: 800; color: ${esc(accent1)}; text-transform: uppercase; letter-spacing: 1.5px; }
+  .sec-title { font-family: ${headingFamily}; font-weight: ${cs.headWeight}; font-size: 23px; line-height: 1.35; margin: 0 0 14px; letter-spacing: -0.025em; }
+  .sec-body { font-size: 15px; color: #4A4940; line-height: 1.9; margin: 0; letter-spacing: -0.01em; }
+  .sec-list { margin: 0; padding-left: 19px; font-size: 15px; color: #4A4940; line-height: 1.9; }
+  .benefit-rows { display: flex; flex-direction: column; gap: 12px; }
+  .benefit-row { display: flex; align-items: flex-start; gap: 12px; font-size: 15px; color: #4A4940; line-height: 1.75; }
+  .benefit-tick { color: ${esc(accent1)}; font-weight: 800; }
+  .badges { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 6px; }
+  .badge { display: inline-block; font-size: 12px; font-weight: 700; padding: 7px 13px; ${badgeCss} }
+  .num-em { color: ${esc(accent1)}; font-weight: 900; font-size: 1.12em; letter-spacing: -0.03em; }
 </style>
 </head>
 <body>
@@ -539,9 +586,9 @@ ${fontLink}
     <div class="hero">
       ${imgHtml}
       ${overline}
-      <h1 class="hero-headline">${esc(draft.hero_headline)}</h1>
+      <h1 class="hero-headline">${emphasizeHtmlText(draft.hero_headline, accent1)}</h1>
       <div class="hero-rule"></div>
-      <p class="hero-sub">${esc(draft.hero_subcopy)}</p>
+      <p class="hero-sub">${emphasizeHtmlText(draft.hero_subcopy, accent1)}</p>
     </div>
     ${sectionsHtml}
   </div>
@@ -887,7 +934,7 @@ ${fontLink}
         </div>
 
         {/* RIGHT: preview / results */}
-        <div style={{ padding: "36px 48px", overflowY: "auto" }}>
+        <div style={{ padding: "48px 54px", overflowY: "auto", background: "radial-gradient(circle at top, #FFFFFF 0, #F4F3EE 34%, #EEECE4 100%)" }}>
           {draft && (
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginBottom: 18, flexWrap: "wrap" }}>
               <button
@@ -961,20 +1008,34 @@ ${fontLink}
           )}
 
           {draft && (
-            <div style={{ maxWidth: 640, margin: "0 auto", fontFamily: bodyFamily }}>
+            <div style={{ maxWidth: 680, margin: "0 auto", fontFamily: bodyFamily }}>
               <PreviewSection idx="hero" onRegen={regenerateSection} loading={regenIndex === "hero"} accent={themeColor}>
-                <div style={{ borderRadius: conceptStyle.radius, boxShadow: conceptStyle.shadow, border: conceptStyle.border, padding: "40px 36px", background: "#fff" }}>
-                  {image && <img src={image} alt="product" style={{ width: "100%", height: 220, objectFit: "cover", borderRadius: conceptStyle.radius, marginBottom: 26 }} />}
+                <div
+                  style={{
+                    position: "relative",
+                    overflow: "hidden",
+                    borderRadius: conceptStyle.radius,
+                    boxShadow: "0 18px 50px rgba(31,42,36,0.10)",
+                    border: "1px solid rgba(31,42,36,0.08)",
+                    padding: "58px 50px 54px",
+                    background: `linear-gradient(135deg, #FFFFFF 0%, #FBFAF6 68%, ${accent1}12 100%)`,
+                    marginBottom: 44,
+                  }}
+                >
+                  <div style={{ position: "absolute", top: 0, left: 50, right: 50, height: 1, background: `linear-gradient(90deg, transparent, ${accent1}66, transparent)` }} />
+                  {image && <img src={image} alt="product" style={{ width: "100%", height: 250, objectFit: "cover", borderRadius: conceptStyle.radius, marginBottom: 32, filter: "saturate(.95) contrast(1.02)" }} />}
                   {product.name && (
-                    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", color: accent1, marginBottom: 14 }}>
+                    <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 2.8, textTransform: "uppercase", color: accent1, marginBottom: 18 }}>
                       {product.name}
                     </div>
                   )}
-                  <div style={{ fontFamily: conceptStyle.headFont, fontWeight: conceptStyle.headWeight, fontSize: 32, lineHeight: 1.25, color: "#1F2A24", marginBottom: 16, letterSpacing: "-0.01em" }}>
-                    {draft.hero_headline}
+                  <div style={{ fontFamily: conceptStyle.headFont, fontWeight: conceptStyle.headWeight, fontSize: 40, lineHeight: 1.18, color: "#1F2A24", marginBottom: 22, letterSpacing: "-0.035em", maxWidth: 560 }}>
+                    <EmphasizedText text={draft.hero_headline} accent={accent1} />
                   </div>
-                  <div style={{ width: 40, height: 3, background: accent1, marginBottom: 16 }} />
-                  <div style={{ fontSize: 15.5, color: "#6B6A61", lineHeight: 1.7 }}>{draft.hero_subcopy}</div>
+                  <div style={{ width: 72, height: 1, background: accent1, marginBottom: 22, opacity: 0.8 }} />
+                  <div style={{ fontSize: 16, color: "#5D5B52", lineHeight: 1.85, maxWidth: 560, letterSpacing: "-0.01em" }}>
+                    <EmphasizedText text={draft.hero_subcopy} accent={accent1} />
+                  </div>
                 </div>
               </PreviewSection>
 
@@ -991,17 +1052,31 @@ ${fontLink}
                   <PreviewSection key={i} idx={i} onRegen={regenerateSection} loading={regenIndex === i} accent={themeColor}>
                     <div
                       style={{
-                        borderRadius: conceptStyle.radius,
-                        boxShadow: conceptStyle.shadow,
-                        border: isHighlight ? conceptStyle.highlightBorder || conceptStyle.border : conceptStyle.border,
+                        position: "relative",
+                        borderRadius: isHighlight ? conceptStyle.radius : 0,
+                        boxShadow: isHighlight ? "0 14px 34px rgba(31,42,36,0.07)" : "none",
+                        border: isHighlight ? "none" : "0",
+                        borderTop: isHighlight ? "none" : "1px solid rgba(31,42,36,0.12)",
                         borderLeft: isHighlight && conceptStyle.highlightBorder !== "none" ? conceptStyle.highlightBorder : undefined,
-                        padding: "30px 32px",
-                        background: cardBg,
-                        marginBottom: Math.max(0, conceptStyle.sectionGap - 18),
+                        padding: isHighlight ? "34px 38px 36px 98px" : "34px 4px 38px 92px",
+                        background: isHighlight ? cardBg : "transparent",
+                        margin: isHighlight ? "24px 0 28px" : "0 0 8px",
                       }}
                     >
-                      <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 12 }}>
-                        <span style={{ fontFamily: conceptStyle.headFont, fontSize: 13, fontWeight: 700, color: accentInBox, opacity: 0.5, minWidth: 22 }}>
+                      <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 14 }}>
+                        <span
+                          style={{
+                            position: "absolute",
+                            left: isHighlight ? 34 : 4,
+                            top: isHighlight ? 30 : 26,
+                            fontFamily: conceptStyle.headFont,
+                            fontSize: 34,
+                            fontWeight: 700,
+                            color: accentInBox,
+                            opacity: isHighlight ? 0.28 : 0.18,
+                            letterSpacing: "-0.04em",
+                          }}
+                        >
                           {String(i + 1).padStart(2, "0")}
                         </span>
                         <ConceptLabel labelStyle={conceptStyle.labelStyle} themeColor={accentInBox} dark={isDarkBox}>
@@ -1009,25 +1084,25 @@ ${fontLink}
                         </ConceptLabel>
                       </div>
                       {s.title && (
-                        <div style={{ fontFamily: conceptStyle.headFont, fontWeight: conceptStyle.headWeight, fontSize: 19, marginBottom: 10, color: titleColor, lineHeight: 1.4 }}>
-                          {s.title}
+                        <div style={{ fontFamily: conceptStyle.headFont, fontWeight: conceptStyle.headWeight, fontSize: 23, marginBottom: 14, color: titleColor, lineHeight: 1.35, letterSpacing: "-0.025em" }}>
+                          <EmphasizedText text={s.title} accent={accentInBox} />
                         </div>
                       )}
-                      {s.body && <div style={{ fontSize: 14.5, color: textColor, lineHeight: 1.75 }}>{s.body}</div>}
+                      {s.body && <div style={{ fontSize: 15, color: textColor, lineHeight: 1.9, letterSpacing: "-0.01em" }}><EmphasizedText text={s.body} accent={accentInBox} /></div>}
                       {s.items && isList && (
                         <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 4 }}>
                           {s.items.map((it, j) => (
-                            <div key={j} style={{ display: "flex", alignItems: "flex-start", gap: 10, fontSize: 14.5, color: textColor, lineHeight: 1.6 }}>
-                              <span style={{ color: accentInBox, fontWeight: 700, marginTop: 1 }}>—</span>
-                              <span>{it}</span>
+                            <div key={j} style={{ display: "flex", alignItems: "flex-start", gap: 12, fontSize: 15, color: textColor, lineHeight: 1.75 }}>
+                              <span style={{ color: accentInBox, fontWeight: 800, marginTop: 1 }}>—</span>
+                              <span><EmphasizedText text={it} accent={accentInBox} /></span>
                             </div>
                           ))}
                         </div>
                       )}
                       {s.items && !isBadges && !isList && (
-                        <ul style={{ margin: 0, paddingLeft: 18, fontSize: 14.5, color: textColor, lineHeight: 1.8 }}>
+                        <ul style={{ margin: 0, paddingLeft: 19, fontSize: 15, color: textColor, lineHeight: 1.9 }}>
                           {s.items.map((it, j) => (
-                            <li key={j}>{it}</li>
+                            <li key={j}><EmphasizedText text={it} accent={accentInBox} /></li>
                           ))}
                         </ul>
                       )}
@@ -1035,7 +1110,7 @@ ${fontLink}
                         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 4 }}>
                           {s.items.map((it, j) => (
                             <ConceptBadge key={j} badgeStyle={conceptStyle.badgeStyle} themeColor={accent1}>
-                              {it}
+                              <EmphasizedText text={it} accent={accent1} />
                             </ConceptBadge>
                           ))}
                         </div>

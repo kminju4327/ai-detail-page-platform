@@ -118,9 +118,19 @@ function EmphasizedText({ text, accent }) {
 }
 
 function callClaude(prompt, maxTokens = 2000) {
+  const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    throw new Error("Claude API 키가 설정되지 않았어요. StackBlitz의 .env 파일에 VITE_ANTHROPIC_API_KEY=sk-ant-... 형식으로 입력해주세요.");
+  }
+
   return fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true",
+    },
     body: JSON.stringify({
       model: "claude-sonnet-4-6",
       max_tokens: maxTokens,
